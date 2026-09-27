@@ -1,0 +1,142 @@
+From patchwork Sat Aug 29 14:55:15 2026
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Edward Blair <edward.blair@gmail.com>
+X-Patchwork-Id: 14774803
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com
+ [209.85.128.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2E5A3AEF45
+	for <linux-acpi@vger.kernel.org>; Sat, 29 Aug 2026 14:55:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+ arc=none smtp.client-ip=209.85.128.54
+ARC-Seal: i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788015347; cv=none;
+ b=FrJ/0xoOGLJW4bRgeRTcoJWUfzYA9ELqiMA8q0K6n4jfHYcRgU0PrcQruYksYMe+rf2tXuNlPZaC1rewkqh1e9DoeQzqXbpLt+lyYHG0/vl3pf2CRu1URj9Tt6EmbuB/95t9On1tBxOrjcfC96vA6jowh8KH+0110w2xHN7cbCM=
+ARC-Message-Signature: i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788015347; c=relaxed/simple;
+	bh=3XdOABZSZLH0OgwUYmhLpcJyF2mhu4J+bTtYORu5bZQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version;
+ b=Y3Y2gocO/u+MRrm7C4mkmrNXR1HnhGCLmHUZgxEcSJtJwA0V8AJZq7oBPxuAduncwi342g6iEuspdvVRx2AvuRhLDRDWWBnY5uUKwSLL6W956asooUHj+u7TYHPAOTjchFvoOwq7rYiHs2T6ozjxtzsWf/t/jtTEPX6Si9SpNZ8=
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org;
+ dmarc=pass (p=none dis=none) header.from=gmail.com;
+ spf=pass smtp.mailfrom=gmail.com;
+ dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
+ header.b=h+gxRfsk; arc=none smtp.client-ip=209.85.128.54
+Authentication-Results: smtp.subspace.kernel.org;
+ dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+ spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
+ header.b="h+gxRfsk"
+Received: by mail-wm1-f54.google.com with SMTP id
+ 5b1f17b1804b1-49b0d78a801so15152365e9.2
+        for <linux-acpi@vger.kernel.org>;
+ Sat, 29 Aug 2026 07:55:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788015341; x=1788620141;
+ darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=/89mfV6La/iUEjGbkyjyZE3vO+uySlEnPZmMX8i9U8g=;
+        b=h+gxRfskZjmmU00YWJAE+CArrHUO5PHQrsRRG5xM3hOp7/QPNG+UC6+x1MLkb9GHDp
+         w1NxFyLtIxTReqa29vrc9ayQQ/pttIvQ2mbLx9a3b45AlGZXbaX6eIAUqJldTs+H2zyN
+         WBmOVfs9TDIHGOiywTA0xbUJBj2lhXiCbmgbxiQME3QryS4uxZHdsDBH9+iDmVkrFqQI
+         x1EpPJ7oVlt5fVliV7wWungAUmYvfUPUmB3h8rRTaDvq1L5TpgyC4DewPV6/fE0WGaN3
+         IKtWd4xpPdSjv44OG6A/WKv2fTAK227afl1rQN48unxtnGrP2tt8ACHk8iME2v2+f64p
+         FJog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788015341; x=1788620141;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=/89mfV6La/iUEjGbkyjyZE3vO+uySlEnPZmMX8i9U8g=;
+        b=QJKV1M5CLKNMohV2BK2uG0hCMgrG3C0pwy6YcqeItYW7bTCexg1JLnJAzqO2uPYzDN
+         Bdk5CFdpwxGXgFHHdmwOS8of2I/IIPav7Wb0Hk92yRCdFDIus5poUrur1If7X0dmtoVI
+         bJl0v7uy7D3JNDeqbeknK4GGWVWnrVJnJT1Yrnmz+PhgKIh3W5X03zt1Mj11hRdH000n
+         baTB0Cb/WQCcQmsndRLs//drdjDtw2TK/ZdIgywSTFrZ2znpici/ftDTLiHse0IAtpSi
+         Fgzj4SX3FLCxox8qd857Ev0PMx3cypMz7ChOCXQddJT4aJulXQDhzX9QaV6lQl7Uaqx4
+         m1cQ==
+X-Gm-Message-State: AFuF++mTZD2T9qmdnCz+VYycPiVjU3hI+7517i0Ts2LC7JltU888ueZs
+	0jekPez9Y0F5HfXVqgvLqkETPSGbGukg6AR1UQyi/CNwILS+gGqG7HSaLL9rAvwXXIU=
+X-Gm-Gg: AR+sD12sU2qJxrIDdR2P4bdlStU63j3wxANjTX1iLT/dtA6XZuDSJpabLTLWJxZspwU
+	jfX5v+YBKgaEHtzTBpOcItgMvV9Dss0tbARP9J+12Gur/JV9ZiOv5LplpUjoo6w30XplWto3t7e
+	oxjHdyD/v/PlyvOGnhIqZHaSMt0RtALCYEHFVPDy0uEfqL28bCUeV215VPhOEQCIC3IhvQiwK7m
+	dL2a3uAqFR/L002bLbtA4w2SV2EJXGSYDq36ttHfR4zKERQ8wON1rNPTkC3XgTLrfI7TjystFih
+	YYzFfBD/f99qxqwgJUbDVZWsXsCP8iuirZ+UfDIv0CozyLkqFhnSQ1IuHNy08svjzYHGnIAru8b
+	VbgvFGNvNWXZSw99taw/i6eW7KrWAQDOniMI/w6ZqeY7qnCDeFlyp7W0OLmT4bK+mzYKQW6ggQJ
+	H2O+oQ4AKA3KjPOcddFqhd0vHpVCwxuoX/sNG4SWBuLTWuo3G1CkbrNEw5VeOmDzkPwDiuHJb7z
+	E/mBZJg6QLMbjsZMkByJADeT1taRaIh3Ckf/zLqQBTqtsSRwlidVosKutGfHI+m4U1O7tmZT1iw
+	u2RZ/T/ZAB01WIxiGDME5+JoHxG7EQSUxcEZ4Ja8uk0aE2pk
+X-Received: by 2002:a05:600c:c490:b0:499:726a:a017 with SMTP id
+ 5b1f17b1804b1-49b91c17294mr214818975e9.1.1788015341035;
+        Sat, 29 Aug 2026 07:55:41 -0700 (PDT)
+Received: from scambox.localdomain (5-198-68-184.static.kc.net.uk.
+ [5.198.68.184])
+        by smtp.gmail.com with ESMTPSA id
+ 5b1f17b1804b1-49b4dfdf00csm195113255e9.14.2026.08.29.07.55.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 29 Aug 2026 07:55:40 -0700 (PDT)
+From: Edward Blair <edward.blair@gmail.com>
+To: linux-acpi@vger.kernel.org,
+	linux-usb@vger.kernel.org
+Cc: rafael@kernel.org,
+	lenb@kernel.org,
+	heikki.krogerus@linux.intel.com,
+	mika.westerberg@linux.intel.com,
+	gregkh@linuxfoundation.org,
+	W_Armin@gmx.de,
+	linux-kernel@vger.kernel.org,
+	Edward Blair <edward.blair@gmail.com>
+Subject: [PATCH v3 1/2] ACPI: scan: do not enumerate MSFT8000 as a serial bus
+ slave
+Date: Sat, 29 Aug 2026 15:55:15 +0100
+Message-ID: <20260829145516.13500-2-edward.blair@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260829145516.13500-1-edward.blair@gmail.com>
+References: <20260829145516.13500-1-edward.blair@gmail.com>
+Precedence: bulk
+X-Mailing-List: linux-acpi@vger.kernel.org
+List-Id: <linux-acpi.vger.kernel.org>
+List-Subscribe: <mailto:linux-acpi+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:linux-acpi+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+
+MSFT8000 represents the Windows Resource Hub Proxy. Its SerialBus
+resources describe connections that Windows exposes to userspace rather
+than a physical peripheral attached to a serial bus.
+
+Treat the device like other ACPI nodes which contain SerialBus resources
+without being serial bus slaves. This keeps the ACPI device present while
+preventing the resources from being instantiated as I2C, SPI or serdev
+clients and conflicting with the actual devices.
+
+Suggested-by: Armin Wolf <W_Armin@gmx.de>
+Signed-off-by: Edward Blair <edward.blair@gmail.com>
+Reviewed-by: Armin Wolf <W_Armin@gmx.de>
+Acked-by: Rafael J. Wysocki (Intel) <rafael@kernel.org>
+---
+ drivers/acpi/scan.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 7dcf78419..608527cda 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -1770,6 +1770,11 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
+ 	 * attached to a serial bus at all.
+ 	 */
+ 		{"MSHW0028", },
++	/*
++	 * MSFT8000 is a Windows Resource Hub Proxy device. Its SerialBus
++	 * resources grant userspace access and do not describe a slave.
++	 */
++		{"MSFT8000", },
+ 	/*
+ 	 * HIDs of device with an UartSerialBusV2 resource for which userspace
+ 	 * expects a regular tty cdev to be created (instead of the in kernel
